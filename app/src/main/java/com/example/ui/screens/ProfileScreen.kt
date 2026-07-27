@@ -6,11 +6,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.CheckCircle
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.DeleteForever
-import androidx.compose.material.icons.filled.Store
-import androidx.compose.material.icons.filled.Warning
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -23,6 +19,7 @@ import androidx.compose.ui.unit.sp
 import com.example.ui.components.NeoBrutalistBadge
 import com.example.ui.components.NeoBrutalistButton
 import com.example.ui.components.NeoBrutalistCard
+import com.example.ui.components.NeoBrutalistTextField
 import com.example.ui.theme.GankColors
 import com.example.ui.viewmodel.MainViewModel
 
@@ -30,6 +27,17 @@ import com.example.ui.viewmodel.MainViewModel
 fun ProfileScreen(
     viewModel: MainViewModel
 ) {
+    val storeProfile by viewModel.storeProfile.collectAsState()
+
+    var isEditingProfile by remember { mutableStateOf(false) }
+
+    var nameInput by remember(storeProfile) { mutableStateOf(storeProfile.name) }
+    var taglineInput by remember(storeProfile) { mutableStateOf(storeProfile.tagline) }
+    var addressInput by remember(storeProfile) { mutableStateOf(storeProfile.address) }
+    var phoneInput by remember(storeProfile) { mutableStateOf(storeProfile.phone) }
+    var leadTechInput by remember(storeProfile) { mutableStateOf(storeProfile.leadTech) }
+    var hoursInput by remember(storeProfile) { mutableStateOf(storeProfile.hours) }
+
     var showDeleteDummyDialog by remember { mutableStateOf(false) }
     var showDeleteAllDialog by remember { mutableStateOf(false) }
     var feedbackMessage by remember { mutableStateOf("") }
@@ -143,14 +151,14 @@ fun ProfileScreen(
                     Spacer(modifier = Modifier.width(12.dp))
                     Column {
                         Text(
-                            text = "GANK SERVICE STORE",
+                            text = storeProfile.name,
                             fontWeight = FontWeight.Black,
                             fontSize = 18.sp,
                             color = GankColors.White,
                             fontFamily = FontFamily.Monospace
                         )
                         Text(
-                            text = "Pusat Reparasi Smartphone & Hardware",
+                            text = storeProfile.tagline,
                             fontWeight = FontWeight.Bold,
                             fontSize = 11.sp,
                             color = GankColors.Silver
@@ -160,23 +168,129 @@ fun ProfileScreen(
             }
         }
 
-        // Workshop Details
+        // Workshop Details / Edit Form
         item {
             NeoBrutalistCard(backgroundColor = GankColors.White) {
-                Text(
-                    text = "PROFIL BENGKEL SERVIS",
-                    fontWeight = FontWeight.Black,
-                    fontSize = 13.sp,
-                    color = GankColors.Ink,
-                    fontFamily = FontFamily.Monospace
-                )
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = if (isEditingProfile) "EDIT PROFIL BENGKEL" else "PROFIL BENGKEL SERVIS",
+                        fontWeight = FontWeight.Black,
+                        fontSize = 13.sp,
+                        color = GankColors.Ink,
+                        fontFamily = FontFamily.Monospace
+                    )
+                    NeoBrutalistBadge(
+                        text = if (isEditingProfile) "MODE EDIT" else "RESMI",
+                        containerColor = if (isEditingProfile) GankColors.GankYellow else GankColors.Paper,
+                        textColor = GankColors.Ink
+                    )
+                }
                 Spacer(modifier = Modifier.height(10.dp))
 
-                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Text(text = "📍 Alamat: Jl. GANK Service No. 1, Jakarta", fontSize = 12.sp, fontWeight = FontWeight.Medium)
-                    Text(text = "📞 Hotline / WA: 0812-3456-7890", fontSize = 12.sp, fontWeight = FontWeight.Medium)
-                    Text(text = "👨‍🔧 Teknisi Penanggung Jawab: Lead Tech GANK", fontSize = 12.sp, fontWeight = FontWeight.Medium)
-                    Text(text = "⏱️ Jam Operasional: Senin - Sabtu (09.00 - 21.00 WIB)", fontSize = 12.sp, fontWeight = FontWeight.Medium)
+                if (!isEditingProfile) {
+                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Text(text = "📍 Alamat: ${storeProfile.address}", fontSize = 12.sp, fontWeight = FontWeight.Medium)
+                        Text(text = "📞 Hotline / WA: ${storeProfile.phone}", fontSize = 12.sp, fontWeight = FontWeight.Medium)
+                        Text(text = "👨‍🔧 Teknisi Penanggung Jawab: ${storeProfile.leadTech}", fontSize = 12.sp, fontWeight = FontWeight.Medium)
+                        Text(text = "⏱️ Jam Operasional: ${storeProfile.hours}", fontSize = 12.sp, fontWeight = FontWeight.Medium)
+
+                        Spacer(modifier = Modifier.height(8.dp))
+                        NeoBrutalistButton(
+                            text = "EDIT PROFIL BENGKEL",
+                            onClick = { isEditingProfile = true },
+                            containerColor = GankColors.GankYellow,
+                            icon = Icons.Default.Edit,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
+                } else {
+                    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                        NeoBrutalistTextField(
+                            value = nameInput,
+                            onValueChange = { nameInput = it },
+                            label = "Nama Toko / Bengkel *",
+                            placeholder = "mis. GANK SERVICE STORE",
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                        NeoBrutalistTextField(
+                            value = taglineInput,
+                            onValueChange = { taglineInput = it },
+                            label = "Tagline / Deskripsi *",
+                            placeholder = "mis. Pusat Reparasi Smartphone & Hardware",
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                        NeoBrutalistTextField(
+                            value = addressInput,
+                            onValueChange = { addressInput = it },
+                            label = "Alamat Lengkap Toko *",
+                            placeholder = "mis. Jl. GANK Service No. 1, Jakarta",
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                        NeoBrutalistTextField(
+                            value = phoneInput,
+                            onValueChange = { phoneInput = it },
+                            label = "No. HP / Hotline WhatsApp *",
+                            placeholder = "mis. 0812-3456-7890",
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                        NeoBrutalistTextField(
+                            value = leadTechInput,
+                            onValueChange = { leadTechInput = it },
+                            label = "Teknisi Penanggung Jawab *",
+                            placeholder = "mis. Lead Tech GANK",
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                        NeoBrutalistTextField(
+                            value = hoursInput,
+                            onValueChange = { hoursInput = it },
+                            label = "Jam Operasional Toko *",
+                            placeholder = "mis. Senin - Sabtu (09.00 - 21.00 WIB)",
+                            modifier = Modifier.fillMaxWidth()
+                        )
+
+                        Spacer(modifier = Modifier.height(6.dp))
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            NeoBrutalistButton(
+                                text = "BATAL",
+                                onClick = {
+                                    nameInput = storeProfile.name
+                                    taglineInput = storeProfile.tagline
+                                    addressInput = storeProfile.address
+                                    phoneInput = storeProfile.phone
+                                    leadTechInput = storeProfile.leadTech
+                                    hoursInput = storeProfile.hours
+                                    isEditingProfile = false
+                                },
+                                containerColor = GankColors.Paper,
+                                modifier = Modifier.weight(1f)
+                            )
+                            NeoBrutalistButton(
+                                text = "SIMPAN PROFIL",
+                                onClick = {
+                                    viewModel.updateStoreProfile(
+                                        name = nameInput,
+                                        tagline = taglineInput,
+                                        address = addressInput,
+                                        phone = phoneInput,
+                                        leadTech = leadTechInput,
+                                        hours = hoursInput
+                                    )
+                                    isEditingProfile = false
+                                    feedbackMessage = "Profil bengkel berhasil diperbarui!"
+                                },
+                                containerColor = GankColors.GankYellow,
+                                icon = Icons.Default.Save,
+                                modifier = Modifier.weight(1.5f)
+                            )
+                        }
+                    }
                 }
             }
         }

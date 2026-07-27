@@ -36,6 +36,7 @@ fun InvoicePdfScreen(
     onBack: () -> Unit
 ) {
     val selectedTicket by viewModel.selectedTicket.collectAsState()
+    val storeProfile by viewModel.storeProfile.collectAsState()
     val context = LocalContext.current
 
     val ticket = selectedTicket ?: return
@@ -82,21 +83,21 @@ fun InvoicePdfScreen(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Text(
-                        text = "GANK SERVICE",
+                        text = storeProfile.name,
                         fontWeight = FontWeight.Black,
                         fontSize = 20.sp,
                         color = GankColors.Ink,
                         fontFamily = FontFamily.Monospace
                     )
                     Text(
-                        text = "PUSAT PERBAIKAN SMARTPHONE & REPAIR",
+                        text = storeProfile.tagline.uppercase(),
                         fontWeight = FontWeight.Bold,
                         fontSize = 10.sp,
                         color = GankColors.Steel,
                         fontFamily = FontFamily.Monospace
                     )
                     Text(
-                        text = "WA: 0812-3456-7890 • IG: @gankservice",
+                        text = "WA: ${storeProfile.phone} • ${storeProfile.address}",
                         fontSize = 10.sp,
                         color = GankColors.Steel
                     )
@@ -230,7 +231,7 @@ fun InvoicePdfScreen(
                 text = "KIRIM NOTA KE WHATSAPP PELANGGAN",
                 onClick = {
                     val message = """
-                        *GANK SERVICE - NOTA DIGITAL SERVIS HP*
+                        *${storeProfile.name.uppercase()} - NOTA DIGITAL SERVIS HP*
                         No. Nota: ${ticket.invoiceNumber}
                         Perangkat: ${ticket.deviceBrand} ${ticket.deviceModel}
                         Pelanggan: ${ticket.customerName}
@@ -243,7 +244,7 @@ fun InvoicePdfScreen(
                         Status: *${ticket.status.uppercase()}*
                         Garansi: ${ticket.warrantyDays} Hari
                         
-                        Terima kasih telah mempercayakan servis HP Anda di GANK SERVICE!
+                        Terima kasih telah mempercayakan servis HP Anda di ${storeProfile.name}!
                     """.trimIndent()
 
                     val intent = Intent(Intent.ACTION_VIEW).apply {

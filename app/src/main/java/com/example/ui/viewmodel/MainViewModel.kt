@@ -1,6 +1,7 @@
 package com.example.ui.viewmodel
 
 import android.app.Application
+import android.content.Context
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.data.local.AppDatabase
@@ -12,9 +13,22 @@ import com.example.data.repository.TechnicianRepository
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
+data class StoreProfile(
+    val name: String = "GANK SERVICE STORE",
+    val tagline: String = "Pusat Reparasi Smartphone & Hardware",
+    val address: String = "Jl. GANK Service No. 1, Jakarta",
+    val phone: String = "0812-3456-7890",
+    val leadTech: String = "Lead Tech GANK",
+    val hours: String = "Senin - Sabtu (09.00 - 21.00 WIB)"
+)
+
 class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     private val repository: TechnicianRepository
+    private val prefs = application.getSharedPreferences("gank_store_profile", Context.MODE_PRIVATE)
+
+    private val _storeProfile = MutableStateFlow(loadStoreProfile())
+    val storeProfile: StateFlow<StoreProfile> = _storeProfile.asStateFlow()
     
     val allTickets: StateFlow<List<ServiceTicketEntity>>
     val allSpareparts: StateFlow<List<SparepartEntity>>
@@ -64,6 +78,45 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         viewModelScope.launch {
             repository.seedInitialDataIfEmpty()
         }
+    }
+
+    private fun loadStoreProfile(): StoreProfile {
+        return StoreProfile(
+            name = prefs.getString("name", "GANK SERVICE STORE") ?: "GANK SERVICE STORE",
+            tagline = prefs.getString("tagline", "Pusat Reparasi Smartphone & Hardware") ?: "Pusat Reparasi Smartphone & Hardware",
+            address = prefs.getString("address", "Jl. GANK Service No. 1, Jakarta") ?: "Jl. GANK Service No. 1, Jakarta",
+            phone = prefs.getString("phone", "0812-3456-7890") ?: "0812-3456-7890",
+            leadTech = prefs.getString("leadTech", "Lead Tech GANK") ?: "Lead Tech GANK",
+            hours = prefs.getString("hours", "Senin - Sabtu (09.00 - 21.00 WIB)") ?: "Senin - Sabtu (09.00 - 21.00 WIB)"
+        )
+    }
+
+    fun updateStoreProfile(
+        name: String,
+        tagline: String,
+        address: String,
+        phone: String,
+        leadTech: String,
+        hours: String
+    ) {
+        val updated = StoreProfile(
+            name = name.ifBlank { "GANK SERVICE STORE" },
+            tagline = tagline.ifBlank { "Pusat Reparasi Smartphone & Hardware" },
+            address = address.ifBlank { "Jl. GANK Service No. 1, Jakarta" },
+            phone = phone.ifBlank { "0812-3456-7890" },
+            leadTech = leadTech.ifBlank { "Lead Tech GANK" },
+            hours = hours.ifBlank { "Senin - Sabtu (09.00 - 21.00 WIB)" }
+        )
+        prefs.edit()
+            .putString("name", updated.name)
+            .putString("tagline", updated.tagline)
+            .putString("address", updated.address)
+            .putString("phone", updated.phone)
+            .putString("leadTech", updated.leadTech)
+            .putString("hours", updated.hours)
+            .apply()
+
+        _storeProfile.value = updated
     }
 
     fun setStatusFilter(filter: String) {
