@@ -1,0 +1,6 @@
+{
+  "name": "GANK Teknisi",
+  "description": "Toolkit & aplikasi servis HP offline-first dengan diagnosa AI Gemini untuk teknisi smartphone",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
