@@ -48,6 +48,16 @@ class TechnicianRepository(private val db: AppDatabase) {
         db.repairLogDao().insertLog(log)
     }
 
+    suspend fun deleteDummyData() = withContext(Dispatchers.IO) {
+        db.serviceTicketDao().deleteDummyTickets()
+        db.sparepartDao().deleteDummySpareparts()
+    }
+
+    suspend fun deleteAllData() = withContext(Dispatchers.IO) {
+        db.serviceTicketDao().deleteAllTickets()
+        db.sparepartDao().deleteAllSpareparts()
+    }
+
     suspend fun seedInitialDataIfEmpty() = withContext(Dispatchers.IO) {
         // Seed default sample data if no service tickets exist
         // This gives immediate visual feedback for the user

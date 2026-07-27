@@ -139,7 +139,7 @@ fun GankTeknisiApp(viewModel: MainViewModel) {
                 }
 
                 composable(Screen.Profile.route) {
-                    ProfileScreen()
+                    ProfileScreen(viewModel = viewModel)
                 }
             }
         }

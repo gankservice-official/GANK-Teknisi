@@ -213,4 +213,16 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             _isAiLoading.value = false
         }
     }
+
+    fun deleteDummyData() {
+        viewModelScope.launch {
+            repository.deleteDummyData()
+        }
+    }
+
+    fun deleteAllData() {
+        viewModelScope.launch {
+            repository.deleteAllData()
+        }
+    }
 }

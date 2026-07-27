@@ -22,6 +22,12 @@ interface ServiceTicketDao {
 
     @Query("DELETE FROM service_tickets WHERE id = :id")
     suspend fun deleteTicketById(id: String)
+
+    @Query("DELETE FROM service_tickets WHERE invoiceNumber LIKE 'GNK-20260727-%' OR customerName IN ('Budi Santoso', 'Rina Wijaya', 'Ahmad Hidayat')")
+    suspend fun deleteDummyTickets()
+
+    @Query("DELETE FROM service_tickets")
+    suspend fun deleteAllTickets()
 }
 
 @Dao
@@ -49,6 +55,12 @@ interface SparepartDao {
 
     @Query("DELETE FROM spareparts WHERE id = :id")
     suspend fun deleteSparepartById(id: String)
+
+    @Query("DELETE FROM spareparts WHERE supplier IN ('GANK Sparepart Central', 'Sub-Board Jaya', 'PowerPro Battery', 'GANK Chipset Store') OR barcode LIKE 'SP-%'")
+    suspend fun deleteDummySpareparts()
+
+    @Query("DELETE FROM spareparts")
+    suspend fun deleteAllSpareparts()
 }
 
 @Dao

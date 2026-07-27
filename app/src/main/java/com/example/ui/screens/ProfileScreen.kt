@@ -5,14 +5,14 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.DeleteForever
 import androidx.compose.material.icons.filled.Store
-import androidx.compose.material3.Icon
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
+import androidx.compose.material.icons.filled.Warning
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -21,11 +21,97 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.ui.components.NeoBrutalistBadge
+import com.example.ui.components.NeoBrutalistButton
 import com.example.ui.components.NeoBrutalistCard
 import com.example.ui.theme.GankColors
+import com.example.ui.viewmodel.MainViewModel
 
 @Composable
-fun ProfileScreen() {
+fun ProfileScreen(
+    viewModel: MainViewModel
+) {
+    var showDeleteDummyDialog by remember { mutableStateOf(false) }
+    var showDeleteAllDialog by remember { mutableStateOf(false) }
+    var feedbackMessage by remember { mutableStateOf("") }
+
+    if (showDeleteDummyDialog) {
+        AlertDialog(
+            onDismissRequest = { showDeleteDummyDialog = false },
+            title = {
+                Text(
+                    text = "Hapus Data Dummy?",
+                    fontWeight = FontWeight.Black,
+                    fontFamily = FontFamily.Monospace,
+                    color = GankColors.Ink
+                )
+            },
+            text = {
+                Text(
+                    text = "Tindakan ini akan menghapus nota bawaan/sample (Budi Santoso, Rina Wijaya, Ahmad Hidayat) dan stok sparepart sample.",
+                    fontSize = 13.sp,
+                    color = GankColors.Ink
+                )
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        viewModel.deleteDummyData()
+                        showDeleteDummyDialog = false
+                        feedbackMessage = "Data dummy berhasil dihapus!"
+                    }
+                ) {
+                    Text("HAPUS DUMMY", fontWeight = FontWeight.Bold, color = GankColors.RedAlert)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDeleteDummyDialog = false }) {
+                    Text("BATAL", color = GankColors.Steel)
+                }
+            },
+            containerColor = GankColors.White,
+            shape = MaterialTheme.shapes.medium
+        )
+    }
+
+    if (showDeleteAllDialog) {
+        AlertDialog(
+            onDismissRequest = { showDeleteAllDialog = false },
+            title = {
+                Text(
+                    text = "Hapus SEMUA Data?",
+                    fontWeight = FontWeight.Black,
+                    fontFamily = FontFamily.Monospace,
+                    color = GankColors.RedAlert
+                )
+            },
+            text = {
+                Text(
+                    text = "PERINGATAN: Seluruh data nota servis dan sparepart di aplikasi akan dikosongkan secara permanen!",
+                    fontSize = 13.sp,
+                    color = GankColors.Ink
+                )
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        viewModel.deleteAllData()
+                        showDeleteAllDialog = false
+                        feedbackMessage = "Seluruh data berhasil dikosongkan!"
+                    }
+                ) {
+                    Text("KOSONGKAN SEMUA", fontWeight = FontWeight.Bold, color = GankColors.RedAlert)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDeleteAllDialog = false }) {
+                    Text("BATAL", color = GankColors.Steel)
+                }
+            },
+            containerColor = GankColors.White,
+            shape = MaterialTheme.shapes.medium
+        )
+    }
+
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
@@ -91,6 +177,71 @@ fun ProfileScreen() {
                     Text(text = "📞 Hotline / WA: 0812-3456-7890", fontSize = 12.sp, fontWeight = FontWeight.Medium)
                     Text(text = "👨‍🔧 Teknisi Penanggung Jawab: Lead Tech GANK", fontSize = 12.sp, fontWeight = FontWeight.Medium)
                     Text(text = "⏱️ Jam Operasional: Senin - Sabtu (09.00 - 21.00 WIB)", fontSize = 12.sp, fontWeight = FontWeight.Medium)
+                }
+            }
+        }
+
+        // Data Management Card
+        item {
+            NeoBrutalistCard(backgroundColor = GankColors.White) {
+                Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "KELOLA DATA DATABASE",
+                            fontWeight = FontWeight.Black,
+                            fontSize = 13.sp,
+                            color = GankColors.Ink,
+                            fontFamily = FontFamily.Monospace
+                        )
+                        NeoBrutalistBadge(
+                            text = "BERSIH-BERSIH",
+                            containerColor = GankColors.GankYellow,
+                            textColor = GankColors.Ink
+                        )
+                    }
+
+                    Text(
+                        text = "Hapus data dummy / contoh bawaan aplikasi agar database bersih untuk transaksi riil:",
+                        fontSize = 11.sp,
+                        color = GankColors.Steel
+                    )
+
+                    if (feedbackMessage.isNotEmpty()) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .background(GankColors.GreenOK, MaterialTheme.shapes.small)
+                                .padding(8.dp)
+                        ) {
+                            Text(
+                                text = feedbackMessage,
+                                color = GankColors.White,
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 12.sp
+                            )
+                        }
+                    }
+
+                    NeoBrutalistButton(
+                        text = "HAPUS DATA DUMMY / SAMPLE",
+                        onClick = { showDeleteDummyDialog = true },
+                        containerColor = GankColors.GankYellow,
+                        icon = Icons.Default.Delete,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+
+                    NeoBrutalistButton(
+                        text = "KOSONGKAN SEMUA DATA SERVIS",
+                        onClick = { showDeleteAllDialog = true },
+                        containerColor = GankColors.RedAlert,
+                        contentColor = GankColors.White,
+                        icon = Icons.Default.DeleteForever,
+                        modifier = Modifier.fillMaxWidth()
+                    )
                 }
             }
         }
